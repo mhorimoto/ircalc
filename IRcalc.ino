@@ -1,6 +1,9 @@
 #include <IRremote.h>
 #include <LiquidCrystal_I2C.h>
 
+#define POWER 0x2FD48B7
+#define HOME  0x27D2CD3
+
 #define NUM1  0x2FD807F
 #define NUM2  0x2FD40BF
 #define NUM3  0x2FDC03F
@@ -15,6 +18,12 @@
 #define CH12  0x2FD30CF
 #define CHUP  0x2FDD827
 #define CHDN  0x2FDF807
+#define VOLUP 0x2FD58A7
+#define VOLDN 0x2FD7887
+#define MUTE  0x2FD08F7
+#define PRG   0x2FD7689
+#define DBUT  0xC23D28D7
+
 
 #define OK     0x2FDBC43
 #define ENTER  0x2FDBC43
