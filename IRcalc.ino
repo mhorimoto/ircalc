@@ -3,45 +3,54 @@
 #include <Wire.h>
 #include <RtcDS3231.h>
 
-#define POWER 0x2FD48B7
-#define HOME  0x27D2CD3
+#define POWER  0x02FD48B7
+#define HOME   0x027D2CD3
 
-#define NUM1  0x2FD807F
-#define NUM2  0x2FD40BF
-#define NUM3  0x2FDC03F
-#define NUM4  0x2FD20DF
-#define NUM5  0x2FDA05F
-#define NUM6  0x2FD609F
-#define NUM7  0x2FDE01F
-#define NUM8  0x2FD10EF
-#define NUM9  0x2FD906F
-#define NUM0  0x2FD50AF
-#define CH11  0x2FDD02F
-#define CH12  0x2FD30CF
-#define CHUP  0x2FDD827
-#define CHDN  0x2FDF807
-#define VOLUP 0x2FD58A7
-#define VOLDN 0x2FD7887
-#define MUTE  0x2FD08F7
-#define PRG   0x2FD7689
-#define DBUT  0xC23D28D7
+#define NUM1   0x02FD807F
+#define NUM2   0x02FD40BF
+#define NUM3   0x02FDC03F
+#define NUM4   0x02FD20DF
+#define NUM5   0x02FDA05F
+#define NUM6   0x02FD609F
+#define NUM7   0x02FDE01F
+#define NUM8   0x02FD10EF
+#define NUM9   0x02FD906F
+#define NUM0   0x02FD50AF
+#define CH11   0x02FDD02F
+#define CH12   0x02FD30CF
+#define CHUP   0x02FDD827
+#define CHDN   0x02FDF807
+#define VOLUP  0x02FD58A7
+#define VOLDN  0x02FD7887
+#define MUTE   0x02FD08F7
+#define PRG    0x02FD7689
+#define DBUT   0xC23D28D7
 
 
-#define OK     0x2FDBC43
-#define ENTER  0x2FDBC43
+#define OK     0x02FDBC43
+#define ENTER  0x02FDBC43
 
-#define BACK   0x2FDDC23
+#define BACK   0x02FDDC23
 
-#define BLUE   0x2FDCE31
-#define PLUS   0x2FDCE31
-#define RED    0x2FD2ED1
-#define MINUS  0x2FD2ED1
-#define GREEN  0x2FDAE51
-#define MULTI  0x2FDAE51
-#define YELLOW 0x2FD6E91
-#define DIV    0x2FD6E91
+#define BLUE   0x02FDCE31
+#define PLUS   0x02FDCE31
+#define RED    0x02FD2ED1
+#define MINUS  0x02FD2ED1
+#define GREEN  0x02FDAE51
+#define MULTI  0x02FDAE51
+#define YELLOW 0x02FD6E91
+#define DIV    0x02FD6E91
 
-#define DISP   0x2FD38C7
+#define DISP   0x02FD38C7
+
+#define LARROW 0x02FDFA05
+#define RARROW 0x02FDDA25
+#define UARROW 0x02FD7C83
+#define DARROW 0x02FDFC03
+
+#define CHDIGI 0x02FD5EA1
+#define BSDIGI 0x02FD3EC1
+#define CSDIGI 0x02FDBE41
 
 #define MAX_STACK_LEVEL 4
 
@@ -69,8 +78,8 @@ void setup() {
   lcd.init();
   lcd.backlight();
   lcd.setCursor(0,0);
-  lcd.print("CALC V1.38");
-  Serial.println("CALC V1.38");
+  lcd.print("CALC V1.47");
+  Serial.println("CALC V1.47");
   lcdx=0;lcdy=0;
   Rtc.Begin();
 }
@@ -80,6 +89,7 @@ void loop() {
   char c;
   char textbuf[256];
   char lcdbuf[17];
+  RtcDateTime nowtime;
   if (irrecv.decode(&results)) {
     if (inMenu) {
       switch(results.value) {
@@ -93,26 +103,40 @@ void loop() {
 	}
 	break;
       case MUTE:
+      case BACK:
 	inMenu = false;
-	break;
-      case PRG:
-	RtcDateTime now = Rtc.GetDateTime();
-	printDateTime(now);
-	Serial.println();
 	lcd.setCursor(0,0);
-	lcd.print("CLOCK");
-	lcd.setCursor(0,1);
-	lcd.print(now);
+	lcd.print("CALC MODE       ");
 	break;
+	//      case DISP:
       default:
+	lcd.setCursor(0,0);
+	lcd.print("UNKNOWN CODE    ");
+	Serial.println("UNKNOWN CODE");
 	if (results.value!=0xffffffff) {
 	  lcd.setCursor(0,1);
 	  sprintf(lcdbuf,"0x%02X%02X%02X%02X",(byte)((results.value>>24)&(0xff)),
 		  (byte)((results.value>>16)&(0xff)),
 		  (byte)((results.value>>8)&(0xff)),(byte)results.value&(0xff));
 	  Serial.println(lcdbuf);
-	  break;
 	}
+	break;
+      case PRG:
+	nowtime = Rtc.GetDateTime();
+	printDateTime(nowtime);
+	Serial.println();
+	lcd.setCursor(0,0);
+	lcd.print("CLOCK");
+	lcd.setCursor(0,1);
+	sprintf(lcdbuf,"%4u%02u%02u %02u%02u%02u ",
+		nowtime.Year(),
+		nowtime.Month(),
+		nowtime.Day(),
+		nowtime.Hour(),
+		nowtime.Minute(),
+		nowtime.Second() );
+	lcd.print(lcdbuf);
+	break;
       }
     } else {
       switch(results.value) {
